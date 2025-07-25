@@ -3,9 +3,11 @@ package br.com.alura.TabelaFip.principal;
 import br.com.alura.TabelaFip.model.Dados;
 import br.com.alura.TabelaFip.model.Dados;
 import br.com.alura.TabelaFip.model.Modelos;
+import br.com.alura.TabelaFip.model.Veiculo;
 import br.com.alura.TabelaFip.service.ConsumoAPI;
 import br.com.alura.TabelaFip.service.ConverteDados;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -65,6 +67,34 @@ public class Principal {
         System.out.println("\nModelos dessa marca: ");
         modeloLista.modelos().stream().sorted(Comparator.comparing(m -> m.codigo()))
                 .forEach(System.out::println);
+
+        System.out.println("Digite um trecho do nome do veículo para consulta: ");
+        var trechoVeiculo = leitura.nextLine();
+
+        List<Dados> modelosFiltrados = modeloLista.modelos().stream().filter(c -> c.nome().toLowerCase().contains(trechoVeiculo.toLowerCase())).collect(Collectors.toList());
+
+        System.out.println("\nModelos filtrados");
+        modelosFiltrados.forEach(System.out::println);
+
+        System.out.println("Digite o código do modelo para consultar valores: ");
+
+        var codModelo = leitura.nextLine();
+
+        endereco = endereco + "/" + codModelo + "/anos";
+
+        json = consumo.obterDados(endereco);
+
+        List<Dados> listaAnos = conversor.obterLista(json, Dados.class);
+//        listaAnos.forEach(System.out::println);
+        List<Veiculo> veiculos = new ArrayList<>();
+
+        for (int i = 0; i < listaAnos.size(); i++) {
+            var enderecoAnos = endereco + "/" + listaAnos.get(i).codigo();
+            json = consumo.obterDados(enderecoAnos);
+            Veiculo veiculo = conversor.obterDados(json, Veiculo.class);
+            veiculos.add(veiculo);
+        }
+        veiculos.forEach(System.out::println);
     }
 
 }
